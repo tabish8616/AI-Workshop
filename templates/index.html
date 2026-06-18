@@ -1,0 +1,1143 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI Research Studio</title>
+    <style>
+      :root {
+        --primary: #1565c0;
+        --primary-dark: #0d3b66;
+        --bg-color: #f5f7fa;
+        --card-bg: #ffffff;
+        --text: #333333;
+        --border: #e0e6ed;
+      }
+      * {
+        box-sizing: border-box;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      }
+      body {
+        margin: 0;
+        display: flex;
+        background-color: var(--bg-color);
+        color: var(--text);
+        height: 100vh;
+        overflow: hidden;
+      }
+
+      /* Sidebar */
+      .sidebar {
+        width: 300px;
+        background-color: var(--card-bg);
+        border-right: 1px solid var(--border);
+        padding: 20px;
+        overflow-y: auto;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+      }
+      .sidebar h2 {
+        color: var(--primary-dark);
+        font-size: 1.2rem;
+        margin-top: 0;
+      }
+      .sidebar-section {
+        margin-bottom: 20px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid var(--border);
+      }
+      .form-group {
+        margin-bottom: 15px;
+      }
+      .form-group label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: 500;
+        font-size: 0.9rem;
+        color: var(--primary-dark);
+      }
+      .form-group select,
+      .form-group input[type="text"],
+      .form-group input[type="number"] {
+        width: 100%;
+        padding: 8px 10px;
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        font-size: 0.9rem;
+      }
+      .checkbox-group {
+        display: flex;
+        gap: 10px;
+      }
+      .progress-container {
+        text-align: center;
+      }
+      .progress-img {
+        max-width: 120px;
+        margin: 0 auto;
+      }
+
+      /* Main Content */
+      .main-content {
+        flex-grow: 1;
+        padding: 30px;
+        overflow-y: auto;
+        height: 100%;
+      }
+      .app-header {
+        padding: 1.4rem 1.8rem;
+        background: linear-gradient(135deg, #0d3b66 0%, #1565c0 100%);
+        border-radius: 14px;
+        color: white;
+        margin-bottom: 1.2rem;
+        box-shadow: 0 4px 14px rgba(13, 59, 102, 0.25);
+      }
+      .app-header h1 {
+        margin: 0;
+        font-size: 1.7rem;
+        font-family: "Georgia", serif;
+      }
+      .app-header p {
+        margin: 0.3rem 0 0 0;
+        font-size: 0.95rem;
+        color: #dce8f7;
+      }
+
+      /* Tabs */
+      .tabs {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px;
+        border-bottom: 2px solid var(--primary);
+        margin-bottom: 20px;
+      }
+      .tab {
+        padding: 8px 14px;
+        background-color: #eaf1fb;
+        color: var(--primary-dark);
+        font-weight: 500;
+        border-radius: 8px 8px 0 0;
+        cursor: pointer;
+        border: none;
+        font-size: 0.9rem;
+      }
+      .tab.active {
+        background-color: var(--primary);
+        color: white;
+      }
+      .tab-content {
+        display: none;
+        background: var(--card-bg);
+        padding: 25px;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+      }
+      .tab-content.active {
+        display: block;
+      }
+
+      /* Elements */
+      h3 {
+        color: var(--primary-dark);
+        font-family: "Georgia", serif;
+        margin-top: 0;
+      }
+      p.subtitle {
+        color: #666;
+        font-size: 0.9rem;
+        margin-top: -10px;
+        margin-bottom: 20px;
+      }
+      .row {
+        display: flex;
+        gap: 15px;
+        margin-bottom: 15px;
+      }
+      .col {
+        flex: 1;
+      }
+      textarea {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        font-size: 0.95rem;
+        resize: vertical;
+        min-height: 100px;
+      }
+      button.primary {
+        background-color: var(--primary);
+        color: white;
+        border: none;
+        padding: 10px 16px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: 500;
+      }
+      button.primary:hover {
+        background-color: #11529c;
+      }
+      button.secondary {
+        background-color: white;
+        color: var(--text);
+        border: 1px solid var(--border);
+        padding: 10px 16px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: 500;
+      }
+      button.secondary:hover {
+        background-color: #f0f0f0;
+      }
+      button:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+
+      /* Tables */
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 15px;
+      }
+      th,
+      td {
+        border: 1px solid var(--border);
+        padding: 8px;
+        text-align: left;
+      }
+      th {
+        background-color: #f8fafc;
+        color: var(--primary-dark);
+        font-weight: 600;
+        font-size: 0.9rem;
+      }
+      td input {
+        width: 100%;
+        padding: 4px;
+        border: 1px solid transparent;
+      }
+      td input:focus {
+        border: 1px solid var(--primary);
+        outline: none;
+      }
+
+      /* Alerts */
+      .verify-box {
+        background-color: #fff4e5;
+        border-left: 5px solid #e8a33d;
+        padding: 0.7rem 1rem;
+        border-radius: 8px;
+        font-size: 0.88rem;
+        color: #6b4a12;
+        margin: 0.6rem 0 15px 0;
+      }
+      .privacy-box {
+        background-color: #e9f3ff;
+        border-left: 4px solid #1565c0;
+        padding: 0.6rem 0.9rem;
+        border-radius: 8px;
+        font-size: 0.8rem;
+        color: #0d3b66;
+        margin-top: 15px;
+      }
+      .error-msg {
+        color: #d32f2f;
+        background: #ffebee;
+        padding: 10px;
+        border-radius: 4px;
+        margin-bottom: 15px;
+        display: none;
+      }
+
+      .loader {
+        border: 3px solid #f3f3f3;
+        border-top: 3px solid var(--primary);
+        border-radius: 50%;
+        width: 16px;
+        height: 16px;
+        animation: spin 1s linear infinite;
+        display: inline-block;
+        vertical-align: middle;
+        margin-right: 8px;
+        display: none;
+      }
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="sidebar">
+      <div class="sidebar-section">
+        <h2>Research Settings</h2>
+        <div class="form-group">
+          <label>Citation Style</label>
+          <select id="set-citation">
+            <option value="APA">APA</option>
+            <option value="MLA">MLA</option>
+            <option value="Chicago">Chicago</option>
+            <option value="Harvard">Harvard</option>
+            <option value="IEEE">IEEE</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Journal / Output Format</label>
+          <select id="set-journal">
+            <option value="Generic Academic">Generic Academic</option>
+            <option value="IEEE">IEEE</option>
+            <option value="Springer">Springer</option>
+            <option value="Elsevier">Elsevier</option>
+            <option value="College Project">College Project</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="sidebar-section">
+        <h2>Export Settings</h2>
+        <div class="checkbox-group">
+          <label><input type="checkbox" id="exp-docx" checked /> DOCX</label>
+          <label><input type="checkbox" id="exp-pdf" checked /> PDF</label>
+          <label><input type="checkbox" id="exp-latex" checked /> LaTeX</label>
+        </div>
+      </div>
+
+      <div class="sidebar-section progress-container">
+        <h2>Progress</h2>
+        <img
+          id="progress-img"
+          class="progress-img"
+          src=""
+          alt="Progress Chart"
+        />
+        <div style="font-weight: bold; margin-top: 10px" id="progress-text">
+          0/10 Sections Completed
+        </div>
+      </div>
+
+      <div class="privacy-box">
+        Your API Key is loaded automatically from Vercel via GEMINI_API_KEY
+        environment variable.
+      </div>
+    </div>
+
+    <div class="main-content">
+      <div class="app-header">
+        <h1>AI Research Studio</h1>
+        <p>
+          A guided AI assistant for first-time academic research papers — from
+          topic to final draft.
+        </p>
+      </div>
+
+      <div class="tabs" id="tabs-container"></div>
+      <div id="error-banner" class="error-msg"></div>
+
+      <div class="tab-content" id="tab-1">
+        <h3>Step 1 — Research Topic</h3>
+        <p class="subtitle">Define your topic to generate a research plan.</p>
+        <div class="row">
+          <div class="col form-group">
+            <label>Research Topic</label><input type="text" id="s1-topic" />
+          </div>
+          <div class="col form-group">
+            <label>Domain</label><input type="text" id="s1-domain" />
+          </div>
+        </div>
+        <div class="row">
+          <div class="col form-group">
+            <label>Research Level</label>
+            <select id="s1-level">
+              <option>Undergraduate</option>
+              <option>Postgraduate</option>
+              <option>PhD</option>
+            </select>
+          </div>
+          <div class="col form-group">
+            <label>Country</label><input type="text" id="s1-country" />
+          </div>
+          <div class="col form-group">
+            <label>Research Type</label>
+            <select id="s1-rtype">
+              <option>Quantitative</option>
+              <option>Qualitative</option>
+              <option>Mixed Methods</option>
+            </select>
+          </div>
+        </div>
+        <button class="primary" id="btn-gen-plan">
+          <span class="loader" id="ldr-plan"></span>Generate Research Plan
+        </button>
+
+        <div
+          id="plan-results"
+          style="
+            display: none;
+            margin-top: 20px;
+            border-top: 1px solid #ddd;
+            padding-top: 20px;
+          "
+        >
+          <div class="form-group">
+            <label>Refined Topic</label><input type="text" id="p-refined" />
+          </div>
+          <div class="form-group">
+            <label>Scope</label
+            ><textarea id="p-scope" style="height: 90px"></textarea>
+          </div>
+          <div class="form-group">
+            <label>Keywords (comma separated)</label
+            ><input type="text" id="p-keywords" />
+          </div>
+          <div class="form-group">
+            <label>Suggested Direction</label
+            ><textarea id="p-direction" style="height: 90px"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <div class="tab-content" id="tab-2">
+        <h3>Step 2 — Problem Statement</h3>
+        <p class="subtitle">Generated from your refined topic.</p>
+        <div class="row">
+          <button class="secondary" id="btn-ps-gen">
+            <span class="loader"></span>Generate
+          </button>
+          <button class="secondary" id="btn-ps-regen">
+            <span class="loader"></span>Regenerate
+          </button>
+          <button class="secondary" id="btn-ps-exp">
+            <span class="loader"></span>Expand
+          </button>
+          <button class="secondary" id="btn-ps-sim">
+            <span class="loader"></span>Simplify
+          </button>
+        </div>
+        <textarea id="val-ps" style="height: 180px"></textarea>
+      </div>
+
+      <div class="tab-content" id="tab-3">
+        <h3>Step 3 — Objectives & Research Questions</h3>
+        <button class="primary" id="btn-obj">
+          <span class="loader"></span>Generate Objectives, Questions &
+          Hypotheses
+        </button>
+        <br /><br />
+        <textarea id="val-obj" style="height: 320px"></textarea>
+      </div>
+
+      <div class="tab-content" id="tab-4">
+        <h3>Step 4 — Literature Review</h3>
+        <div class="verify-box">
+          AI-generated references must be verified against original sources.
+        </div>
+        <button class="primary" id="btn-lit-table">
+          <span class="loader"></span>Generate Literature Review Table
+        </button>
+        <div
+          id="lit-table-wrapper"
+          style="margin-top: 20px; overflow-x: auto"
+        ></div>
+
+        <div id="lit-narrative-section" style="display: none; margin-top: 20px">
+          <button class="secondary" id="btn-lit-nar">
+            <span class="loader"></span>Generate Narrative Literature Review
+          </button>
+          <br /><br />
+          <textarea id="val-lit-nar" style="height: 220px"></textarea>
+        </div>
+      </div>
+
+      <div class="tab-content" id="tab-5">
+        <h3>Step 5 — Research Gap</h3>
+        <button class="primary" id="btn-gap">
+          <span class="loader"></span>Generate Research Gap
+        </button>
+        <br /><br />
+        <textarea id="val-gap" style="height: 220px"></textarea>
+      </div>
+
+      <div class="tab-content" id="tab-6">
+        <h3>Step 6 — Methodology Builder</h3>
+        <div class="row">
+          <div class="col form-group">
+            <label>Approach</label>
+            <select id="m-app">
+              <option>Quantitative</option>
+              <option>Qualitative</option>
+              <option>Mixed</option>
+            </select>
+          </div>
+          <div class="col form-group">
+            <label>Design</label>
+            <select id="m-des">
+              <option>Descriptive</option>
+              <option>Exploratory</option>
+              <option>Experimental</option>
+            </select>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col form-group">
+            <label>Sample Size</label><input type="text" id="m-size" />
+          </div>
+          <div class="col form-group">
+            <label>Sampling Method</label><input type="text" id="m-samp" />
+          </div>
+          <div class="col form-group">
+            <label>Data Collection</label><input type="text" id="m-coll" />
+          </div>
+        </div>
+        <button class="primary" id="btn-meth">
+          <span class="loader"></span>Generate Methodology
+        </button>
+        <br /><br />
+        <textarea id="val-meth" style="height: 260px"></textarea>
+      </div>
+
+      <div class="tab-content" id="tab-7">
+        <h3>Step 7 — Questionnaire Generator</h3>
+        <button class="primary" id="btn-quest">
+          <span class="loader"></span>Generate Questionnaire
+        </button>
+        <br /><br />
+        <div
+          id="quest-list"
+          style="display: flex; flex-direction: column; gap: 8px"
+        ></div>
+        <br />
+        <button class="secondary" id="btn-quest-dl" style="display: none">
+          Download Questionnaire (DOCX)
+        </button>
+      </div>
+
+      <div class="tab-content" id="tab-8">
+        <h3>Step 8 — Expected Results</h3>
+        <button class="primary" id="btn-res">
+          <span class="loader"></span>Generate Expected Results
+        </button>
+        <br /><br />
+        <textarea id="val-res" style="height: 220px"></textarea>
+      </div>
+
+      <div class="tab-content" id="tab-9">
+        <h3>Step 9 — Conclusion</h3>
+        <button class="primary" id="btn-conc">
+          <span class="loader"></span>Generate Conclusion
+        </button>
+        <br /><br />
+        <textarea id="val-conc" style="height: 260px"></textarea>
+      </div>
+
+      <div class="tab-content" id="tab-10">
+        <h3>Step 10 — References</h3>
+        <div class="verify-box">
+          AI-generated references are never verified automatically. Each entry
+          is tagged [Verification Required] and must be checked manually before
+          submission.
+        </div>
+        <button class="primary" id="btn-ref">
+          <span class="loader"></span>Generate References
+        </button>
+        <br /><br />
+        <textarea id="val-ref" style="height: 260px"></textarea>
+      </div>
+
+      <div class="tab-content" id="tab-11">
+        <h3>Final Research Paper</h3>
+        <p class="subtitle">Review and edit before exporting.</p>
+        <button class="primary" id="btn-assemble">
+          Generate Final Research Paper
+        </button>
+        <br /><br />
+        <div id="final-paper-ui"></div>
+        <br />
+        <div
+          class="row"
+          style="border-top: 1px solid var(--border); padding-top: 20px"
+        >
+          <button class="secondary" id="dl-docx">Download DOCX</button>
+          <button class="secondary" id="dl-pdf">Download PDF</button>
+          <button class="secondary" id="dl-latex">Download LaTeX ZIP</button>
+        </div>
+      </div>
+
+      <div class="tab-content" id="tab-12">
+        <h3>Quality Check Panel</h3>
+        <div
+          id="qc-score"
+          style="
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary-dark);
+            margin-bottom: 10px;
+          "
+        ></div>
+        <div
+          id="qc-list"
+          style="
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            font-size: 1.1rem;
+          "
+        ></div>
+      </div>
+    </div>
+
+    <script>
+      // App State Management
+      let state = {
+        research_plan: null,
+        problem_statement: "",
+        objectives_text: "",
+        lit_table: [],
+        lit_narrative: "",
+        research_gap: "",
+        methodology_text: "",
+        questionnaire: [],
+        results_text: "",
+        conclusion_text: "",
+        references_text: "",
+        final_paper: null,
+      };
+
+      const steps = [
+        "1. Topic",
+        "2. Problem",
+        "3. Objectives",
+        "4. Literature",
+        "5. Gap",
+        "6. Methodology",
+        "7. Questionnaire",
+        "8. Results",
+        "9. Conclusion",
+        "10. References",
+        "Final Paper",
+        "Quality Check",
+      ];
+
+      // UI Initializer
+      function initUI() {
+        const tabsContainer = document.getElementById("tabs-container");
+        steps.forEach((name, idx) => {
+          let btn = document.createElement("button");
+          btn.className = `tab ${idx === 0 ? "active" : ""}`;
+          btn.innerText = name;
+          btn.onclick = () => switchTab(idx);
+          tabsContainer.appendChild(btn);
+        });
+        updateProgress();
+      }
+
+      function switchTab(index) {
+        document
+          .querySelectorAll(".tab")
+          .forEach(
+            (t, i) => (t.className = `tab ${i === index ? "active" : ""}`),
+          );
+        document
+          .querySelectorAll(".tab-content")
+          .forEach(
+            (c, i) =>
+              (c.className = `tab-content ${i === index ? "active" : ""}`),
+          );
+        if (index === 11) runQualityChecks();
+      }
+
+      function showError(msg) {
+        const el = document.getElementById("error-banner");
+        el.innerText = msg;
+        el.style.display = "block";
+        setTimeout(() => (el.style.display = "none"), 5000);
+      }
+
+      async function apiCall(endpoint, payload, loaderBtn) {
+        if (loaderBtn) {
+          loaderBtn.disabled = true;
+          let loader = loaderBtn.querySelector(".loader");
+          if (loader) loader.style.display = "inline-block";
+        }
+        try {
+          const res = await fetch(endpoint, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.error || "Server error");
+          return data;
+        } catch (e) {
+          showError(e.message);
+          return null;
+        } finally {
+          if (loaderBtn) {
+            loaderBtn.disabled = false;
+            let loader = loaderBtn.querySelector(".loader");
+            if (loader) loader.style.display = "none";
+          }
+        }
+      }
+
+      function checkCompletedSteps() {
+        return [
+          !!state.research_plan,
+          !!state.problem_statement,
+          !!state.objectives_text,
+          state.lit_table.length > 0 && !!state.lit_narrative,
+          !!state.research_gap,
+          !!state.methodology_text,
+          state.questionnaire.length > 0,
+          !!state.results_text,
+          !!state.conclusion_text,
+          !!state.references_text,
+        ];
+      }
+
+      async function updateProgress() {
+        const checks = checkCompletedSteps();
+        const count = checks.filter((c) => c).length;
+        document.getElementById("progress-text").innerText =
+          `${count}/10 Sections Completed`;
+
+        const res = await fetch("/api/progress_chart", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ completed: count, total: 10 }),
+        });
+        const data = await res.json();
+        if (data && data.image) {
+          document.getElementById("progress-img").src = data.image;
+        }
+      }
+
+      // Step 1
+      document.getElementById("btn-gen-plan").onclick = async function () {
+        const payload = {
+          topic: document.getElementById("s1-topic").value,
+          domain: document.getElementById("s1-domain").value,
+          level: document.getElementById("s1-level").value,
+          country: document.getElementById("s1-country").value,
+          rtype: document.getElementById("s1-rtype").value,
+        };
+        if (!payload.topic) return showError("Please enter a research topic.");
+        const data = await apiCall(
+          "/api/generate_research_plan",
+          payload,
+          this,
+        );
+        if (data) {
+          state.research_plan = data;
+          document.getElementById("p-refined").value = data.refined_topic || "";
+          document.getElementById("p-scope").value = data.scope || "";
+          document.getElementById("p-keywords").value = (
+            data.keywords || []
+          ).join(", ");
+          document.getElementById("p-direction").value =
+            data.suggested_direction || "";
+          document.getElementById("plan-results").style.display = "block";
+          updateProgress();
+        }
+      };
+
+      // Keep synced on blur
+      ["p-refined", "p-scope", "p-direction"].forEach((id) => {
+        document.getElementById(id).addEventListener("blur", (e) => {
+          if (state.research_plan) {
+            let key = id.replace("p-", "");
+            if (key === "refined") key = "refined_topic";
+            if (key === "direction") key = "suggested_direction";
+            state.research_plan[key] = e.target.value;
+          }
+        });
+      });
+
+      // Step 2
+      async function genProblem(mode, btn) {
+        if (!state.research_plan) return showError("Complete Step 1 first.");
+        const data = await apiCall(
+          "/api/generate_problem_statement",
+          {
+            plan: state.research_plan,
+            mode: mode,
+            existing: state.problem_statement,
+          },
+          btn,
+        );
+        if (data) {
+          state.problem_statement = data.problem_statement;
+          document.getElementById("val-ps").value = state.problem_statement;
+          updateProgress();
+        }
+      }
+      document.getElementById("btn-ps-gen").onclick = function () {
+        genProblem("generate", this);
+      };
+      document.getElementById("btn-ps-regen").onclick = function () {
+        genProblem("regenerate", this);
+      };
+      document.getElementById("btn-ps-exp").onclick = function () {
+        genProblem("expand", this);
+      };
+      document.getElementById("btn-ps-sim").onclick = function () {
+        genProblem("simplify", this);
+      };
+      document.getElementById("val-ps").addEventListener("blur", (e) => {
+        state.problem_statement = e.target.value;
+        updateProgress();
+      });
+
+      // Step 3
+      document.getElementById("btn-obj").onclick = async function () {
+        if (!state.problem_statement)
+          return showError("Complete Step 2 first.");
+        const data = await apiCall(
+          "/api/generate_objectives",
+          {
+            plan: state.research_plan,
+            problem_statement: state.problem_statement,
+          },
+          this,
+        );
+        if (data) {
+          state.objectives_text = data.objectives_text;
+          document.getElementById("val-obj").value = state.objectives_text;
+          updateProgress();
+        }
+      };
+      document.getElementById("val-obj").addEventListener("blur", (e) => {
+        state.objectives_text = e.target.value;
+        updateProgress();
+      });
+
+      // Step 4
+      document.getElementById("btn-lit-table").onclick = async function () {
+        if (!state.research_plan) return showError("Complete Step 1 first.");
+        const data = await apiCall(
+          "/api/generate_literature_table",
+          { plan: state.research_plan },
+          this,
+        );
+        if (data) {
+          state.lit_table = data.lit_table;
+          renderLitTable();
+          document.getElementById("lit-narrative-section").style.display =
+            "block";
+          updateProgress();
+        }
+      };
+
+      function renderLitTable() {
+        let h =
+          "<table><thead><tr><th>Author</th><th>Year</th><th>Methodology</th><th>Findings</th><th>Limitation</th><th>Del</th></tr></thead><tbody>";
+        state.lit_table.forEach((row, idx) => {
+          h += `<tr>
+                <td><input type="text" value="${(row.author || "").replace(/"/g, "&quot;")}" onchange="state.lit_table[${idx}].author=this.value"></td>
+                <td><input type="text" value="${(row.year || "").replace(/"/g, "&quot;")}" onchange="state.lit_table[${idx}].year=this.value"></td>
+                <td><input type="text" value="${(row.methodology || "").replace(/"/g, "&quot;")}" onchange="state.lit_table[${idx}].methodology=this.value"></td>
+                <td><input type="text" value="${(row.findings || "").replace(/"/g, "&quot;")}" onchange="state.lit_table[${idx}].findings=this.value"></td>
+                <td><input type="text" value="${(row.limitation || "").replace(/"/g, "&quot;")}" onchange="state.lit_table[${idx}].limitation=this.value"></td>
+                <td><button class="secondary" style="padding:2px 6px" onclick="state.lit_table.splice(${idx},1); renderLitTable();">X</button></td>
+            </tr>`;
+        });
+        h +=
+          '</tbody></table><button class="secondary" onclick="state.lit_table.push({}); renderLitTable();">Add Row</button>';
+        document.getElementById("lit-table-wrapper").innerHTML = h;
+      }
+
+      document.getElementById("btn-lit-nar").onclick = async function () {
+        const data = await apiCall(
+          "/api/generate_literature_narrative",
+          { lit_table: state.lit_table },
+          this,
+        );
+        if (data) {
+          state.lit_narrative = data.lit_narrative;
+          document.getElementById("val-lit-nar").value = state.lit_narrative;
+          updateProgress();
+        }
+      };
+      document.getElementById("val-lit-nar").addEventListener("blur", (e) => {
+        state.lit_narrative = e.target.value;
+        updateProgress();
+      });
+
+      // Step 5
+      document.getElementById("btn-gap").onclick = async function () {
+        if (!state.lit_narrative) return showError("Complete Step 4 first.");
+        const data = await apiCall(
+          "/api/generate_research_gap",
+          { lit_narrative: state.lit_narrative },
+          this,
+        );
+        if (data) {
+          state.research_gap = data.research_gap;
+          document.getElementById("val-gap").value = state.research_gap;
+          updateProgress();
+        }
+      };
+      document.getElementById("val-gap").addEventListener("blur", (e) => {
+        state.research_gap = e.target.value;
+        updateProgress();
+      });
+
+      // Step 6
+      document.getElementById("btn-meth").onclick = async function () {
+        if (!state.research_plan) return showError("Complete Step 1 first.");
+        const minputs = {
+          approach: document.getElementById("m-app").value,
+          design: document.getElementById("m-des").value,
+          sample_size: document.getElementById("m-size").value,
+          sampling_method: document.getElementById("m-samp").value,
+          data_collection: document.getElementById("m-coll").value,
+        };
+        const data = await apiCall(
+          "/api/generate_methodology",
+          { plan: state.research_plan, methodology_inputs: minputs },
+          this,
+        );
+        if (data) {
+          state.methodology_text = data.methodology_text;
+          document.getElementById("val-meth").value = state.methodology_text;
+          updateProgress();
+        }
+      };
+      document.getElementById("val-meth").addEventListener("blur", (e) => {
+        state.methodology_text = e.target.value;
+        updateProgress();
+      });
+
+      // Step 7
+      document.getElementById("btn-quest").onclick = async function () {
+        if (!state.research_plan) return showError("Complete Step 1 first.");
+        const minputs = { approach: document.getElementById("m-app").value };
+        const data = await apiCall(
+          "/api/generate_questionnaire",
+          { plan: state.research_plan, methodology_inputs: minputs },
+          this,
+        );
+        if (data) {
+          state.questionnaire = data.questionnaire;
+          renderQuest();
+          document.getElementById("btn-quest-dl").style.display =
+            "inline-block";
+          updateProgress();
+        }
+      };
+      function renderQuest() {
+        let h = "";
+        state.questionnaire.forEach((q, idx) => {
+          h += `<div style="display:flex; gap:10px;"><input type="text" style="flex:1" value="${q.replace(/"/g, "&quot;")}" onchange="state.questionnaire[${idx}]=this.value"><button class="secondary" onclick="state.questionnaire.splice(${idx},1); renderQuest()">X</button></div>`;
+        });
+        h += `<button class="secondary" style="width:120px;" onclick="state.questionnaire.push(''); renderQuest()">Add Question</button>`;
+        document.getElementById("quest-list").innerHTML = h;
+      }
+
+      // Step 8
+      document.getElementById("btn-res").onclick = async function () {
+        if (!state.methodology_text) return showError("Complete Step 6 first.");
+        const data = await apiCall(
+          "/api/generate_results",
+          {
+            plan: state.research_plan,
+            methodology_text: state.methodology_text,
+          },
+          this,
+        );
+        if (data) {
+          state.results_text = data.results_text;
+          document.getElementById("val-res").value = state.results_text;
+          updateProgress();
+        }
+      };
+      document.getElementById("val-res").addEventListener("blur", (e) => {
+        state.results_text = e.target.value;
+        updateProgress();
+      });
+
+      // Step 9
+      document.getElementById("btn-conc").onclick = async function () {
+        if (!state.results_text) return showError("Complete Step 8 first.");
+        const data = await apiCall(
+          "/api/generate_conclusion",
+          { plan: state.research_plan, results_text: state.results_text },
+          this,
+        );
+        if (data) {
+          state.conclusion_text = data.conclusion_text;
+          document.getElementById("val-conc").value = state.conclusion_text;
+          updateProgress();
+        }
+      };
+      document.getElementById("val-conc").addEventListener("blur", (e) => {
+        state.conclusion_text = e.target.value;
+        updateProgress();
+      });
+
+      // Step 10
+      document.getElementById("btn-ref").onclick = async function () {
+        if (!state.lit_table || state.lit_table.length === 0)
+          return showError("Complete Step 4 first.");
+        const data = await apiCall(
+          "/api/generate_references",
+          {
+            plan: state.research_plan,
+            citation_style: document.getElementById("set-citation").value,
+            lit_table: state.lit_table,
+          },
+          this,
+        );
+        if (data) {
+          state.references_text = data.references_text;
+          document.getElementById("val-ref").value = state.references_text;
+          updateProgress();
+        }
+      };
+      document.getElementById("val-ref").addEventListener("blur", (e) => {
+        state.references_text = e.target.value;
+        updateProgress();
+      });
+
+      // Step 11: Final Paper
+      document.getElementById("btn-assemble").onclick = function () {
+        if (!state.research_plan)
+          return showError("Please complete earlier steps.");
+
+        let abstract = `This study examines ${(state.research_plan.refined_topic || "").toLowerCase()}. ${state.problem_statement.substring(0, 250)} The research adopts a ${document.getElementById("m-app").value} ${document.getElementById("m-des").value.toLowerCase()} design. ${state.results_text.substring(0, 200)}`;
+
+        state.final_paper = {
+          Title: state.research_plan.refined_topic || "Untitled Research Paper",
+          Abstract: abstract,
+          Introduction: `${state.research_plan.scope || ""}\n\n${state.problem_statement}`,
+          "Problem Statement": state.problem_statement,
+          "Objectives, Questions & Hypotheses": state.objectives_text,
+          "Literature Review": state.lit_narrative,
+          "Research Gap": state.research_gap,
+          Methodology: state.methodology_text,
+          Questionnaire: state.questionnaire
+            .map((q, i) => `${i + 1}. ${q}`)
+            .join("\n"),
+          "Expected Results": state.results_text,
+          Conclusion: state.conclusion_text,
+          References: state.references_text,
+        };
+
+        let h = "";
+        Object.keys(state.final_paper).forEach((k) => {
+          h += `<div><b>${k}</b><textarea onchange="state.final_paper['${k}']=this.value" style="height:120px; margin-bottom:15px;">${state.final_paper[k]}</textarea></div>`;
+        });
+        document.getElementById("final-paper-ui").innerHTML = h;
+      };
+
+      // Quality Check Logic
+      function runQualityChecks() {
+        const p = state;
+        const cm = checkCompletedSteps();
+        const checks = [
+          { l: "Topic & Plan", ok: cm[0] },
+          { l: "Problem Statement", ok: cm[1] },
+          { l: "Objectives", ok: cm[2] },
+          { l: "Literature Review", ok: cm[3] },
+          { l: "Research Gap", ok: cm[4] },
+          { l: "Methodology", ok: cm[5] },
+          { l: "Questionnaire", ok: cm[6] },
+          { l: "Expected Results", ok: cm[7] },
+          { l: "Conclusion", ok: cm[8] },
+          { l: "References", ok: cm[9] },
+          { l: "Methodology present", ok: !!p.methodology_text },
+          { l: "References present", ok: !!p.references_text },
+          { l: "Objectives present", ok: !!p.objectives_text },
+          {
+            l: "Problem length (>40 words)",
+            ok: p.problem_statement.split(" ").length > 40,
+          },
+          {
+            l: "Conclusion length (>40 words)",
+            ok: p.conclusion_text.split(" ").length > 40,
+          },
+          { l: "Lit review entries (>=3)", ok: p.lit_table.length >= 3 },
+          { l: "Questionnaire items (>=8)", ok: p.questionnaire.length >= 8 },
+        ];
+
+        const passed = checks.filter((c) => c.ok).length;
+        document.getElementById("qc-score").innerText =
+          `Quality Score: ${passed}/${checks.length}`;
+        document.getElementById("qc-list").innerHTML = checks
+          .map((c) => `<div>${c.ok ? "✅" : "⚠️"} ${c.l}</div>`)
+          .join("");
+      }
+
+      // Downloads
+      async function triggerDownload(endpoint, payload, filename) {
+        try {
+          const res = await fetch(endpoint, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          });
+          if (!res.ok) throw new Error("Download failed");
+          const blob = await res.blob();
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = filename;
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+        } catch (e) {
+          showError(e.message);
+        }
+      }
+
+      document.getElementById("dl-docx").onclick = () => {
+        if (!document.getElementById("exp-docx").checked)
+          return showError("DOCX export disabled in settings.");
+        if (!state.final_paper) return showError("Assemble paper first.");
+        triggerDownload(
+          "/api/download/docx",
+          {
+            paper: state.final_paper,
+            journal_format: document.getElementById("set-journal").value,
+          },
+          "research_paper.docx",
+        );
+      };
+      document.getElementById("dl-pdf").onclick = () => {
+        if (!document.getElementById("exp-pdf").checked)
+          return showError("PDF export disabled in settings.");
+        if (!state.final_paper) return showError("Assemble paper first.");
+        triggerDownload(
+          "/api/download/pdf",
+          { paper: state.final_paper },
+          "research_paper.pdf",
+        );
+      };
+      document.getElementById("dl-latex").onclick = () => {
+        if (!document.getElementById("exp-latex").checked)
+          return showError("LaTeX export disabled in settings.");
+        if (!state.final_paper) return showError("Assemble paper first.");
+        triggerDownload(
+          "/api/download/latex",
+          { paper: state.final_paper, lit_table: state.lit_table },
+          "research_paper_latex.zip",
+        );
+      };
+      document.getElementById("btn-quest-dl").onclick = () => {
+        triggerDownload(
+          "/api/download/questionnaire",
+          { questionnaire: state.questionnaire },
+          "questionnaire.docx",
+        );
+      };
+
+      window.onload = initUI;
+    </script>
+  </body>
+</html>
